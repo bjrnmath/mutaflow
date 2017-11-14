@@ -1,0 +1,3 @@
+rootProject.name = 'DroidMutant'
+
+include "LogCaller", "Parser", "Instrumenter", "Runner", "FlowExtractor"

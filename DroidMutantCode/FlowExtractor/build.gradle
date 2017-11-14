@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+// Include dependent libraries in archive.
+def mainClassName = "FlowExtractor"
+
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task copyJarToBin(type: Copy) {
+    from 'build/libs/FlowExtractor.jar'
+    into "../../install"
+}
+
+build.dependsOn copyJarToBin

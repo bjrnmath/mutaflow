@@ -1,0 +1,54 @@
+plugins {
+    id "de.undercouch.download" version "3.2.0"
+}
+
+apply plugin: 'java'
+
+def lib_dir = new File('lib/')
+if (!lib_dir.exists()) {
+    lib_dir.mkdirs()
+}
+
+def soot_jar = new File('lib/soot-trunk.jar')
+if (!soot_jar.exists()) {
+    println "downloading soot"
+    download {
+        src 'https://soot-build.cs.uni-paderborn.de/public/origin/develop/soot/soot-develop/build/sootclasses-trunk-jar-with-dependencies.jar'
+        dest 'lib/soot-trunk.jar'
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    flatDir {
+        dirs 'lib'
+    }
+}
+
+dependencies {
+    //compile fileTree(dir: 'lib', include: '*.jar')
+    compile name: 'soot-trunk'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+	compile 'com.google.guava:guava:23.2-jre'
+}
+
+// Include dependent libraries in archive.
+def mainClassName = "PrivacyAPK"
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task copyJarToBin(type: Copy) {
+    from 'build/libs/Instrumenter.jar'
+    into "../../install"
+}
+
+build.dependsOn copyJarToBin

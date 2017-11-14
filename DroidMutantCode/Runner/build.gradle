@@ -1,0 +1,31 @@
+apply plugin: 'java'
+
+// Include dependent libraries in archive.
+def mainClassName = "Runner"
+
+ repositories {
+        mavenCentral()
+    }
+
+dependencies {
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+}
+
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task copyJarToBin(type: Copy) {
+    from 'build/libs/Runner.jar'
+    into "../../install"
+}
+
+build.dependsOn copyJarToBin

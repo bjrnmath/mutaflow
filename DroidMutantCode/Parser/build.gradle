@@ -1,0 +1,32 @@
+apply plugin: 'java'
+
+repositories {
+   flatDir {
+       dirs '../android-jars'
+   }
+}
+
+
+dependencies {
+    compile fileTree(dir: '../android-jars', include: '*.jar')
+}
+
+// Include dependent libraries in archive.
+def mainClassName = "Parser"
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task copyJarToBin(type: Copy) {
+    from 'build/libs/Parser.jar'
+    into "../../install"
+}
+
+build.dependsOn copyJarToBin
